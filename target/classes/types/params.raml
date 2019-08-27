@@ -1,0 +1,64 @@
+#%RAML 1.0 Library
+
+types: 
+  identification:
+    type: object
+    properties:
+      firstName:
+        type: string
+        required: false
+      lastName:
+        type: string
+        required: false
+      dob:
+        type: string
+        required: false
+      gender:
+        enum: [M,F]
+        required: false
+      title:
+        type: string
+        required: false
+        
+        
+  address:
+    type: object
+    properties:
+      userId:
+        type: integer
+        required: false
+      type:
+        enum: [Home,Work]
+        required: false
+      street:
+        type: string
+        required: false
+      unit:
+        type: string
+        required: false
+      city:
+        type: string
+        required: false
+      state:
+        type: string
+        required: false
+      zipcode:
+        type: string
+        required: false
+
+        
+  communication:
+    type: object
+    properties:
+      userId:
+        type: integer
+        required: false
+      type:
+        enum: [Email,Phone,Mobile]
+        required: false
+      value:
+        type: string
+        required: false
+      preferred:
+        type: boolean
+        required: false

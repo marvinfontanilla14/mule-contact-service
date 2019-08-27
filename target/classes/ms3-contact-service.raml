@@ -1,0 +1,748 @@
+#%RAML 1.0
+title: MS3 Contact Service
+mediaType: application/json
+baseUri: http://localhost:8081/api
+
+uses:
+  params: types/params.raml
+
+/contact:
+  /identification:
+    get:
+      description: Get indentification using available query params
+      queryParameters:
+        id:
+          type: integer
+          required: false
+        firstName:
+          type: string
+          required: false
+        lastName:
+          type: string
+          required: false
+        dob:
+          type: string
+          required: false
+        gender:
+          enum: [M,F]
+          required: false
+        title:
+          type: string
+          required: false
+        limit:
+          type: integer
+          required: false
+        offset:
+          type: integer
+          required: false
+        orderBy:
+          enum: [id,firstName,lastName,gender]
+          required: false
+        recordOrder:
+          enum: [asc,desc]
+          required: false 
+      responses: 
+        200:
+          body:
+            application/json:
+              example: !include examples/getIdentificationResponse.raml
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Resource not found"
+                }
+        405:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Unsupported media type"
+                }
+        406:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Not acceptable"
+                }
+        400:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Bad request"
+                }
+        500:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Internal error"
+                }
+    
+    
+    post:
+      description: Post Identification
+      body:
+        type: params.identification
+        example: !include examples/identification.raml
+      responses: 
+        200:
+          body:
+            application/json:
+              example: !include examples/identification.raml
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Resource not found"
+                }
+        405:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Unsupported media type"
+                }
+        406:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Not acceptable"
+                }
+        400:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Bad request"
+                }
+        500:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Internal error"
+                }
+                
+    /{id}:
+      patch:
+        description: Patch Identification by id
+        body:
+          type: params.identification
+          example: !include examples/identification.raml
+        responses: 
+          200:
+            body:
+              application/json:
+                example: !include examples/identification.raml
+          404:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Resource not found"
+                  }
+          405:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Method not allowed"
+                  }
+          415:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Unsupported media type"
+                  }
+          406:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Not acceptable"
+                  }
+          400:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Bad request"
+                  }
+          500:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Internal error"
+                  }
+      
+      
+      delete:
+        description: Delete Identification by id
+        responses: 
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Record has been deleted"
+                  }
+          404:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Resource not found"
+                  }
+          405:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Method not allowed"
+                  }
+          415:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Unsupported media type"
+                  }
+          406:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Not acceptable"
+                  }
+          400:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Bad request"
+                  }
+          500:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Internal error"
+                  }
+                  
+                  
+  /address:
+    get:
+      description: Get address using available query params
+      queryParameters:
+        id:
+          type: integer
+          required: false
+        userId:
+          type: integer
+          required: false
+        type:
+          enum: [Home,Work]
+          required: false
+        number:
+          type: string
+          required: false
+        street:
+          type: string
+          required: false
+        unit:
+          type: string
+          required: false
+        city:
+          type: string
+          required: false
+        state:
+          type: string
+          required: false
+        zipcode:
+          type: string
+          required: false
+        limit:
+          type: integer
+          required: false
+        offset:
+          type: integer
+          required: false
+        orderBy:
+          enum: [id,type,city,state]
+          required: false
+        recordOrder:
+          enum: [asc,desc]
+          required: false 
+      responses: 
+        200:
+          body:
+            application/json:
+              example: !include examples/getAddressResponse.raml
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Resource not found"
+                }
+        405:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Unsupported media type"
+                }
+        406:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Not acceptable"
+                }
+        400:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Bad request"
+                }
+        500:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Internal error"
+                }
+    
+    
+    post:
+      description: Post Address
+      body:
+        type: params.address
+        example: !include examples/address.raml
+      responses: 
+        200:
+          body:
+            application/json:
+              example: !include examples/address.raml
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Resource not found"
+                }
+        405:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Unsupported media type"
+                }
+        406:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Not acceptable"
+                }
+        400:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Bad request"
+                }
+        500:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Internal error"
+                }
+                
+    /{id}:
+      patch:
+        description: Patch Address by id
+        body:
+          type: params.address
+          example: !include examples/address.raml
+        responses: 
+          200:
+            body:
+              application/json:
+                example: !include examples/address.raml
+          404:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Resource not found"
+                  }
+          405:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Method not allowed"
+                  }
+          415:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Unsupported media type"
+                  }
+          406:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Not acceptable"
+                  }
+          400:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Bad request"
+                  }
+          500:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Internal error"
+                  }
+      
+      
+      delete:
+        description: Delete address by id
+        responses: 
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Record has been deleted"
+                  }
+          404:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Resource not found"
+                  }
+          405:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Method not allowed"
+                  }
+          415:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Unsupported media type"
+                  }
+          406:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Not acceptable"
+                  }
+          400:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Bad request"
+                  }
+          500:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Internal error"
+                  }
+
+                  
+  /communication:
+    get:
+      description: Get communication using available query params
+      queryParameters:
+        id:
+          type: integer
+          required: false
+        userId:
+          type: integer
+          required: false
+        type:
+          enum: [Email,Phone,Mobile]
+          required: false
+        value:
+          type: string
+          required: false
+        preferred:
+          type: boolean
+          required: false
+        limit:
+          type: integer
+          required: false
+        offset:
+          type: integer
+          required: false
+        orderBy:
+          enum: [id,type,value,preferred]
+          required: false
+        recordOrder:
+          enum: [asc,desc]
+          required: false 
+      responses: 
+        200:
+          body:
+            application/json:
+              example: !include examples/getCommunicationResponse.raml
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Resource not found"
+                }
+        405:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Unsupported media type"
+                }
+        406:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Not acceptable"
+                }
+        400:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Bad request"
+                }
+        500:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Internal error"
+                }
+    
+    
+    post:
+      description: Post Communication
+      body:
+        type: params.communication
+        example: !include examples/communication.raml
+      responses: 
+        200:
+          body:
+            application/json:
+              example: !include examples/communication.raml
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Resource not found"
+                }
+        405:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Unsupported media type"
+                }
+        406:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Not acceptable"
+                }
+        400:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Bad request"
+                }
+        500:
+          body:
+            application/json:
+              example: |
+                {
+                    "message": "Internal error"
+                }
+                
+    /{id}:
+      patch:
+        description: Patch Communication by id
+        body:
+          type: params.communication
+          example: !include examples/communication.raml
+        responses: 
+          200:
+            body:
+              application/json:
+                example: !include examples/communication.raml
+          404:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Resource not found"
+                  }
+          405:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Method not allowed"
+                  }
+          415:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Unsupported media type"
+                  }
+          406:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Not acceptable"
+                  }
+          400:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Bad request"
+                  }
+          500:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Internal error"
+                  }
+      
+      
+      delete:
+        description: Delete Communication by id
+        responses: 
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Record has been deleted"
+                  }
+          404:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Resource not found"
+                  }
+          405:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Method not allowed"
+                  }
+          415:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Unsupported media type"
+                  }
+          406:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Not acceptable"
+                  }
+          400:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Bad request"
+                  }
+          500:
+            body:
+              application/json:
+                example: |
+                  {
+                      "message": "Internal error"
+                  }

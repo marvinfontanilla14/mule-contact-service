@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    <http:listener-config name="ms3-contact-service-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <apikit:config name="ms3-contact-service-config" raml="ms3-contact-service.raml" consoleEnabled="false" doc:name="Router"/>
+    <flow name="ms3-contact-service-main">
+        <http:listener config-ref="ms3-contact-service-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="ms3-contact-service-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="ms3-contact-service-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="ms3-contact-service-console">
+        <http:listener config-ref="ms3-contact-service-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="ms3-contact-service-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="delete:/contact/identification/{id}:ms3-contact-service-config">
+        <set-payload value="{&#xA;    &quot;message&quot;: &quot;Record has been deleted&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="delete:/contact/communication/{id}:ms3-contact-service-config">
+        <set-payload value="{&#xA;    &quot;message&quot;: &quot;Record has been deleted&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="delete:/contact/address/{id}:ms3-contact-service-config">
+        <set-payload value="{&#xA;    &quot;message&quot;: &quot;Record has been deleted&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="patch:/contact/address/{id}:application/json:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Home&quot;,&#xA;&quot;street&quot; : &quot;street&quot;,&#xA;&quot;unit&quot; : &quot;21 unit&quot;,&#xA;&quot;city&quot; : &quot;magic city&quot;,&#xA;&quot;state&quot; : &quot;US State&quot;,&#xA;&quot;zipcode&quot; : &quot;1234&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="patch:/contact/identification/{id}:application/json:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;firstName&quot; : &quot;Marvin&quot;,&#xA;&quot;lastName&quot; : &quot;Fontanilla&quot;,&#xA;&quot;dob&quot; : &quot;03/04/1993&quot;,&#xA;&quot;gender&quot; : &quot;M&quot;,&#xA;&quot;title&quot; : &quot;Integration Developer&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="patch:/contact/communication/{id}:application/json:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Mobile&quot;,&#xA;&quot;value&quot; : &quot;+1019101911&quot;,&#xA;&quot;preferred&quot; : true&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/contact/address:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;totalResults&quot; : 1,&#xA;&quot;responseSize&quot; : 1,&#xA;&quot;offset&quot; : 0,&#xA;&quot;limit&quot; : 25,&#xA;&quot;resultList&quot; : [&#xA;{&#xA;&quot;id&quot; : 1,&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Home&quot;,&#xA;&quot;street&quot; : &quot;street&quot;,&#xA;&quot;unit&quot; : &quot;21 unit&quot;,&#xA;&quot;city&quot; : &quot;magic city&quot;,&#xA;&quot;state&quot; : &quot;US State&quot;,&#xA;&quot;zipcode&quot; : &quot;1234&quot;&#xA;}&#xA;]&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/contact/communication:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;totalResults&quot; : 1,&#xA;&quot;responseSize&quot; : 1,&#xA;&quot;offset&quot; : 0,&#xA;&quot;limit&quot; : 25,&#xA;&quot;resultList&quot; : [&#xA;{&#xA;&quot;id&quot; : 1,&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Mobile&quot;,&#xA;&quot;value&quot; : &quot;+0901910191&quot;,&#xA;&quot;preferred&quot; : true&#xA;}&#xA;]&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/contact/identification:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;totalResults&quot; : 1,&#xA;&quot;responseSize&quot; : 1,&#xA;&quot;offset&quot; : 0,&#xA;&quot;limit&quot; : 25,&#xA;&quot;resultList&quot; : [&#xA;{&#xA;&quot;id&quot; : 1&#xA;},&#xA;{&#xA;&quot;firstName&quot; : &quot;Marvin&quot;,&#xA;&quot;lastName&quot; : &quot;Fontanilla&quot;,&#xA;&quot;dob&quot; : &quot;03/04/1993&quot;,&#xA;&quot;gender&quot; : &quot;M&quot;,&#xA;&quot;title&quot; : &quot;Integration Developer&quot;&#xA;}&#xA;]&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="post:/contact/address:application/json:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Home&quot;,&#xA;&quot;street&quot; : &quot;street&quot;,&#xA;&quot;unit&quot; : &quot;21 unit&quot;,&#xA;&quot;city&quot; : &quot;magic city&quot;,&#xA;&quot;state&quot; : &quot;US State&quot;,&#xA;&quot;zipcode&quot; : &quot;1234&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="post:/contact/communication:application/json:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Mobile&quot;,&#xA;&quot;value&quot; : &quot;+1019101911&quot;,&#xA;&quot;preferred&quot; : true&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="post:/contact/identification:application/json:ms3-contact-service-config">
+        <set-payload value="{&#xA;&quot;firstName&quot; : &quot;Marvin&quot;,&#xA;&quot;lastName&quot; : &quot;Fontanilla&quot;,&#xA;&quot;dob&quot; : &quot;03/04/1993&quot;,&#xA;&quot;gender&quot; : &quot;M&quot;,&#xA;&quot;title&quot; : &quot;Integration Developer&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <apikit:mapping-exception-strategy name="ms3-contact-service-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>
