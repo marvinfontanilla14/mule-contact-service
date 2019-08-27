@@ -1,7 +1,292 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.9.0"
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
-http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <sub-flow name="impl-post-identification">
+        <set-property propertyName="http.status" value="201" doc:name="Set initial http.status"/>
+        <dw:transform-message doc:name="Set params">
+            <dw:set-variable variableName="params"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	firstName : flowVars.requestPayload.firstName,
+	lastName : flowVars.requestPayload.lastName,
+	dob : flowVars.requestPayload.dob as :date {format: "MM/dd/yyyy"} as :string {format:"yyyy-MM-dd"},
+	gender : flowVars.requestPayload.gender,
+	title : flowVars.requestPayload.title
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <enricher target="#[flowVars.requiredFields]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate required fields">
+                <scripting:script engine="Groovy"><![CDATA[def missingFields = new ArrayList()
+
+if (flowVars.params.firstName == null || (flowVars.params.firstName != null && flowVars.params.firstName == "")){
+	 missingFields.add("firstName")
+}
+if (flowVars.params.lastName == null || (flowVars.params.lastName != null && flowVars.params.lastName == "")){
+	 missingFields.add("lastName")
+}
+
+
+return missingFields]]></scripting:script>
+            </scripting:component>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.requiredFields.size() &gt; 0]">
+                <set-variable variableName="errorMsg" value="Missing required fields #[flowVars.requiredFields]" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-precondition-failed" doc:name="common-precondition-failed"/>
+            </when>
+            <otherwise>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                    <add-message-property key="eq_firstName" value="#[flowVars.params.firstName]"/>
+                    <add-message-property key="eq_lastName" value="#[flowVars.params.lastName]"/>
+                </message-properties-transformer>
+                <flow-ref name="find-identification" doc:name="find-identification"/>
+                <choice doc:name="Choice">
+                    <when expression="#[flowVars.foundRecord.size() &gt; 0]">
+                        <set-variable variableName="errorMsg" value="Existing record found" doc:name="Variable - errorMsg"/>
+                        <flow-ref name="common-existing-record-found" doc:name="common-existing-record-found"/>
+                    </when>
+                    <otherwise>
+                        <enricher target="#[flowVars.insertResult]" doc:name="Message Enricher">
+                            <flow-ref name="db-contact-INSERT-identification" doc:name="db-contact-INSERT-identification"/>
+                        </enricher>
+                        <set-variable variableName="generatedId" value="#[flowVars.insertResult[0]['GENERATED_KEY']]" doc:name="Variable - generatedId"/>
+                        <flow-ref name="common-post-success" doc:name="common-post-success"/>
+                    </otherwise>
+                </choice>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+	<sub-flow name="impl-get-identification">
+
+		<message-properties-transformer scope="invocation"
+			doc:name="Init variables">
+			<add-message-property key="limit"
+				value="#[flowVars.requestParams.limit]" />
+			<add-message-property key="offset"
+				value="#[flowVars.requestParams.offset]" />
+			<add-message-property key="orderBy"
+				value="#[flowVars.requestParams.orderBy]" />
+			<add-message-property key="recordOrder"
+				value="#[flowVars.requestParams.recordOrder]" />
+				
+			<add-message-property key="id"
+				value="#[flowVars.requestParams.id]" />
+			<add-message-property key="firstName"
+				value="#[escapeParam(flowVars.requestParams.firstName)]" />
+			<add-message-property key="lastName"
+				value="#[escapeParam(flowVars.requestParams.lastName)]" />
+            <add-message-property key="gender" value="#[escapeParam(flowVars.requestParams.gender)]"/>
+            <add-message-property key="title" value="#[escapeParam(flowVars.requestParams.title)]"/>
+			
+			
+		</message-properties-transformer>
+		<dw:transform-message doc:name="Order by column mapper">
+			<dw:set-variable variableName="orderByColumnMapping"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	id : "id",
+	firstName : "firstName",
+	lastName: "lastName",
+	gender: "gender"
+}]]></dw:set-variable>
+		</dw:transform-message>
+		<flow-ref name="find-identification" doc:name="find-identification" />
+		<enricher target="#[flowVars.totalResults]" doc:name="Message Enricher">
+			<processor-chain doc:name="Processor Chain">
+				<enricher target="#[flowVars.dynamicQuery]"
+					doc:name="Message Enricher">
+					<scripting:component doc:name="Groovy">
+						<scripting:script engine="Groovy"><![CDATA[def query = "SELECT * FROM identification"
+def missingFields = new ArrayList()
+def hasWhere = false
+def conditionQuery = " WHERE "
+
+
+if (flowVars.id != null){
+	 conditionQuery+= " id="+flowVars.id+" and"
+	 hasWhere = true
+}
+
+if (flowVars.firstName != null && flowVars.firstName != ""){
+	 conditionQuery+= " first_name like '%"+flowVars.firstName+"%' and"
+	 hasWhere = true
+}
+
+if (flowVars.lastName != null && flowVars.lastName != ""){
+	 conditionQuery+= " last_name like '%"+flowVars.lastName+"%' and"
+	 hasWhere = true
+}
+
+if (flowVars.eq_firstName != null && flowVars.eq_firstName != ""){
+	 conditionQuery+= " first_name = '"+flowVars.eq_firstName+"' and"
+	 hasWhere = true
+}
+
+if (flowVars.eq_lastName != null && flowVars.eq_lastName != ""){
+	 conditionQuery+= " last_name = '"+flowVars.lastName+"' and"
+	 hasWhere = true
+}
+
+if (flowVars.gender != null && flowVars.gender != ""){
+	 conditionQuery+= " gender like '%"+flowVars.gender+"%' and"
+	 hasWhere = true
+}
+
+if (flowVars.title != null && flowVars.title != ""){
+	 conditionQuery+= " title like '%"+flowVars.title+"%' and"
+	 hasWhere = true
+}
+
+if(hasWhere){
+	query += conditionQuery
+	query = query.substring(0,query.size()-3)
+}
+
+if(flowVars.orderBy != null) {
+	query += " order by "+flowVars.orderBy+" "
+}
+if(flowVars.recordOrder != null) {
+	query += " "+flowVars.recordOrder+" "
+}
+
+
+
+
+
+return query]]></scripting:script>
+					</scripting:component>
+				</enricher>
+                <flow-ref name="db-contact-SELECT-generic" doc:name="db-contact-SELECT-generic"/>
+				<set-payload value="#[payload.size()]" doc:name="Set Payload" />
+
+			</processor-chain>
+		</enricher>
+
+		<dw:transform-message doc:name="Format Payload">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	totalResults: flowVars.totalResults,
+	responseSize: (sizeOf flowVars.foundRecord),
+	offset: flowVars.offset when flowVars.offset != null otherwise 0,
+	limit: flowVars.limit when flowVars.limit != null otherwise 25,
+	resultList : flowVars.foundRecord map {
+		id: $.id,
+		firtName: $.first_name,
+		lastName: $.last_name,
+		dob: $.dob  as :date {format: "yyyy-MM-dd"} as :string {format:"MM/dd/yyyy"},
+		gender: $.gender,
+		title: $.title,
+		dateTimeCreated : $.date_time_created,
+		dateTimeUpdated : $.date_time_updated
+	}
+}]]></dw:set-payload>
+		</dw:transform-message>
+
+
+	</sub-flow>
+
+
+	<sub-flow name="find-identification">
+
+
+		<enricher target="#[flowVars.orderBy]" doc:name="Message Enricher">
+			<scripting:component doc:name="validate order by mapping">
+				<scripting:script engine="Groovy"><![CDATA[return (flowVars.orderBy != null ? flowVars.orderByColumnMapping."$flowVars.orderBy" : null)
+]]></scripting:script>
+			</scripting:component>
+		</enricher>
+
+
+		<enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate Select Query">
+                <scripting:script engine="Groovy"><![CDATA[def query = "SELECT * FROM identification"
+def missingFields = new ArrayList()
+def hasWhere = false
+def conditionQuery = " WHERE "
+
+
+if (flowVars.id != null){
+	 conditionQuery+= " id="+flowVars.id+" and"
+	 hasWhere = true
+}
+
+if (flowVars.firstName != null && flowVars.firstName != ""){
+	 conditionQuery+= " first_name like '%"+flowVars.firstName+"%' and"
+	 hasWhere = true
+}
+
+if (flowVars.lastName != null && flowVars.lastName != ""){
+	 conditionQuery+= " last_name like '%"+flowVars.lastName+"%' and"
+	 hasWhere = true
+}
+
+if (flowVars.eq_firstName != null && flowVars.eq_firstName != ""){
+	 conditionQuery+= " first_name = '"+flowVars.eq_firstName+"' and"
+	 hasWhere = true
+}
+
+if (flowVars.eq_lastName != null && flowVars.eq_lastName != ""){
+	 conditionQuery+= " last_name = '"+flowVars.eq_lastName+"' and"
+	 hasWhere = true
+}
+
+if (flowVars.gender != null && flowVars.gender != ""){
+	 conditionQuery+= " gender like '%"+flowVars.gender+"%' and"
+	 hasWhere = true
+}
+
+if (flowVars.title != null && flowVars.title != ""){
+	 conditionQuery+= " title like '%"+flowVars.title+"%' and"
+	 hasWhere = true
+}
+
+if(hasWhere){
+	query += conditionQuery
+	query = query.substring(0,query.size()-3)
+}
+
+if(flowVars.orderBy != null) {
+	query += " order by "+flowVars.orderBy+" "
+}
+if(flowVars.recordOrder != null) {
+	query += " "+flowVars.recordOrder+" "
+}
+
+
+if(flowVars.limit != null) {
+	query += " limit "+flowVars.limit+" "
+} else{
+	query += " limit 25 "
+}
+
+if(flowVars.offset != null) {
+	query += " offset "+flowVars.offset+" "
+}
+
+
+
+return query]]></scripting:script>
+            </scripting:component>
+
+		</enricher>
+		<enricher target="#[flowVars.foundRecord]" doc:name="Message Enricher">
+            <flow-ref name="db-contact-SELECT-generic" doc:name="db-contact-SELECT-generic"/>
+		</enricher>
+	</sub-flow>
+
+</mule>
