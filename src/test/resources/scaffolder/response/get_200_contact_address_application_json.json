@@ -1,0 +1,21 @@
+{
+"totalResults" : 1,
+"responseSize" : 1,
+"offset" : 0,
+"limit" : 25,
+"resultList" : [
+{
+"id" : 1,
+"contactId" : 1,
+"type" : "Home",
+"number" : "123A",
+"street" : "street",
+"unit" : "21 unit",
+"city" : "magic city",
+"state" : "US State",
+"zipcode" : "1234",
+"dateTimeCreated" : "2019-08-27 21:27:45",
+"dateTimeUpdated" : "2019-08-27 21:27:45"
+}
+]
+}

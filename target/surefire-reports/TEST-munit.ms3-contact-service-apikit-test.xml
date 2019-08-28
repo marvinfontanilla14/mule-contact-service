@@ -1,0 +1,90 @@
+<testsuite name="ms3-contact-service-apikit-test" time="14.625" failures="0" errors="0" skipped="0" tests="24">
+  <properties>
+    <property key="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property key="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_181\jre\bin"/>
+    <property key="java.vm.version" value="25.181-b13"/>
+    <property key="maven.multiModuleProjectDirectory" value="C:\Users\Marvin Fontanilla\AnypointStudio\workspace-training\ms3-contact-service"/>
+    <property key="java.vm.vendor" value="Oracle Corporation"/>
+    <property key="java.vendor.url" value="http://java.oracle.com/"/>
+    <property key="guice.disable.misplaced.annotation.check" value="true"/>
+    <property key="path.separator" value=";"/>
+    <property key="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property key="file.encoding.pkg" value="sun.io"/>
+    <property key="user.country" value="AU"/>
+    <property key="user.script" value=""/>
+    <property key="sun.java.launcher" value="SUN_STANDARD"/>
+    <property key="sun.os.patch.level" value=""/>
+    <property key="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property key="user.dir" value="C:\Users\Marvin Fontanilla\AnypointStudio\workspace-training\ms3-contact-service"/>
+    <property key="java.runtime.version" value="1.8.0_181-b13"/>
+    <property key="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property key="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.8.0_181\jre\lib\endorsed"/>
+    <property key="os.arch" value="amd64"/>
+    <property key="java.io.tmpdir" value="C:\Users\MARVIN~1\AppData\Local\Temp\"/>
+    <property key="line.separator" value="&#xd;&#xa;"/>
+    <property key="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property key="user.variant" value=""/>
+    <property key="os.name" value="Windows 10"/>
+    <property key="classworlds.conf" value="C:\apache-maven-3.5.4\bin\..\bin\m2.conf"/>
+    <property key="sun.jnu.encoding" value="Cp1252"/>
+    <property key="java.library.path" value="C:\Program Files\Java\jdk1.8.0_181\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jdk1.8.0_181/bin/../jre/bin/server;C:/Program Files/Java/jdk1.8.0_181/bin/../jre/bin;C:/Program Files/Java/jdk1.8.0_181/bin/../jre/lib/amd64;C:\Program Files\Java\jdk1.8.0_181\bin;C:\ProgramData\DockerDesktop\version-bin;C:\Program Files\Docker\Docker\Resources\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\PuTTY\;C:\xampp\mysql\bin;C:\xampp\php;C:\ProgramData\ComposerSetup\bin;C:\Program Files\MySQL\MySQL Shell 8.0\bin\;C:\Users\Marvin Fontanilla\Desktop\AnypointStudio;;."/>
+    <property key="maven.conf" value="C:\apache-maven-3.5.4\bin\../conf"/>
+    <property key="java.specification.name" value="Java Platform API Specification"/>
+    <property key="java.class.version" value="52.0"/>
+    <property key="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property key="os.version" value="10.0"/>
+    <property key="library.jansi.path" value="C:\apache-maven-3.5.4\bin\..\lib\jansi-native"/>
+    <property key="user.home" value="C:\Users\Marvin Fontanilla"/>
+    <property key="user.timezone" value="Asia/Shanghai"/>
+    <property key="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property key="file.encoding" value="Cp1252"/>
+    <property key="java.specification.version" value="1.8"/>
+    <property key="java.class.path" value="C:\apache-maven-3.5.4\bin\..\boot\plexus-classworlds-2.5.2.jar"/>
+    <property key="user.name" value="Marvin Fontanilla"/>
+    <property key="java.vm.specification.version" value="1.8"/>
+    <property key="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B clean package"/>
+    <property key="java.home" value="C:\Program Files\Java\jdk1.8.0_181\jre"/>
+    <property key="sun.arch.data.model" value="64"/>
+    <property key="user.language" value="en"/>
+    <property key="java.specification.vendor" value="Oracle Corporation"/>
+    <property key="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property key="java.vm.info" value="mixed mode"/>
+    <property key="java.version" value="1.8.0_181"/>
+    <property key="java.ext.dirs" value="C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext;C:\WINDOWS\Sun\Java\lib\ext"/>
+    <property key="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_181\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_181\jre\classes"/>
+    <property key="java.vendor" value="Oracle Corporation"/>
+    <property key="maven.home" value="C:\apache-maven-3.5.4\bin\.."/>
+    <property key="file.separator" value="\"/>
+    <property key="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/"/>
+    <property key="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property key="sun.cpu.endian" value="little"/>
+    <property key="sun.desktop" value="windows"/>
+    <property key="sun.cpu.isalist" value="amd64"/>
+    <property key="mule.testingMode" value="true"/>
+    <property key="mule.working.dir" value="C:\Users\Marvin Fontanilla\AnypointStudio\workspace-training\ms3-contact-service\target\.mule"/>
+  </properties>
+  <testcase time="0.206" name="get:/contact/identification_by_id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.12" name="delete:/contact/address/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.325" name="get:/contact/address:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.263" name="post:/contact/communication:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.187" name="delete:/contact/identification/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.12" name="delete:/contact/communication/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="2.726" name="get:/contact/identification:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.191" name="get:/contact/address_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.231" name="post:/contact/identification_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.196" name="post:/contact/address_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.36" name="post:/contact/address:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.161" name="post:/contact/address_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.23" name="patch:/contact/communication/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.173" name="delete:/contact/communication/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.183" name="post:/contact/communication_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.18" name="delete:/contact/address/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.166" name="post:/contact/identification_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.284" name="patch:/contact/address/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.265" name="get:/contact/communication:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.497" name="post:/contact/identification:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.296" name="patch:/contact/identification/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.218" name="get:/contact/communication_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.126" name="delete:/contact/identification/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.135" name="post:/contact/communication_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+</testsuite>

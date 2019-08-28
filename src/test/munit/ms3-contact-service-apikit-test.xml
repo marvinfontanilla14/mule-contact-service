@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <spring:beans>
+        <spring:import resource="classpath:interfaces/ms3-contact-service.xml" />
+        <spring:import resource="classpath:data/db-contact.xml" />
+        <spring:import resource="classpath:implementations/ms3-contact-service-impl.xml" />
+        <spring:import resource="classpath:utils/common.xml" />
+    </spring:beans>
+    <munit:config mock-connectors="false" mock-inbounds="false" doc:name="MUnit configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8081" basePath="/api" doc:name="HTTP Request Configuration"/>
+    <munit:before-suite name="ms3-contact-service-apikit-testBefore_Suite" description="MUnit Test">
+        <db:bulk-execute config-ref="MySQL_Configuration" doc:name="Reset Test Data"><![CDATA[UPDATE identification SET deleted = NULL WHERE id = 1;
+UPDATE address SET deleted = NULL WHERE contact_id = 1;
+UPDATE communication SET deleted = NULL WHERE contact_id = 1;
+UPDATE identification SET first_name = 'default_test_data' where id = 1;
+DELETE FROM address WHERE state LIKE '%MUNIT_TEST_DATA%'  AND contact_id = 1;
+DELETE FROM communication WHERE value LIKE '%MUNIT_TEST_DATA%'  AND contact_id = 1;
+DELETE FROM identification WHERE first_name LIKE '%MUNIT_TEST_DATA%' AND id > 1;
+
+]]></db:bulk-execute>
+    </munit:before-suite>
+    
+
+
+  <munit:test name="get:/contact/identification:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [get:/contact/identification:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/contact/identification" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[message.payload is java.util.Map]" doc:name="Assert that - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+    <munit:test name="get:/contact/identification_by_id:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [get:/contact/identification_by_id:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/contact/identification" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="id" value="${identification.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[message.payload is java.util.Map]" doc:name="Assert that - payload type of java.util.Map"/>
+        <munit:assert-true message="resultList doesn't contain single array" condition="#[payload.resultList.size() == 1]" doc:name="Assert That - resultList contain single array"/>
+
+    </munit:test>
+
+
+
+
+    <munit:test name="get:/contact/address:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [get:/contact/address:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/contact/address" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[message.payload is java.util.Map]" doc:name="Assert that - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+    <munit:test name="get:/contact/address_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [get:/contact/address_by_id_contactId:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/contact/address" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="id" value="${address.id}"/>
+                <http:query-param paramName="contactId" value="${identification.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[message.payload is java.util.Map]" doc:name="Assert that - payload type of java.util.Map"/>
+        <munit:assert-true message="resultList doesn't contain single array" condition="#[payload.resultList.size() == 1]" doc:name="Assert That - resultList contain single array"/>
+
+    </munit:test>
+
+
+
+    <munit:test name="get:/contact/communication:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [get:/contact/communication:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/contact/communication" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[message.payload is java.util.Map]" doc:name="Assert that - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+    <munit:test name="get:/contact/communication_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [get:/contact/communication_by_id_contactId:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/contact/communication" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="id" value="${communication.id}"/>
+                <http:query-param paramName="contactId" value="${identification.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[message.payload is java.util.Map]" doc:name="Assert that - payload type of java.util.Map"/>
+        <munit:assert-true message="resultList doesn't contain single array" condition="#[payload.resultList.size() == 1]" doc:name="Assert That - resultList contain single array"/>
+
+    </munit:test>
+
+    <munit:test name="post:/contact/identification:application/json:ms3-contact-service-config-201-application/json-FlowTest" description="Verifying functionality of [post:/contact/identification:application/json:ms3-contact-service-config-200-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_identification_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/identification" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json" />
+                <http:header headerName="Content-Type" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(201))]" doc:name="assert that - http.status eq 201" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+
+    <munit:test name="post:/contact/identification_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" description="Verifying functionality of [post:/contact/identification_existing_record_found:application/json:ms3-contact-service-config-406-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_identification_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/identification" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(406))]" doc:name="assert that - http.status eq 406" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+    <munit:test name="post:/contact/identification_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" description="Verifying functionality of [post:/contact/identification_missing_required_field:application/json:ms3-contact-service-config-412-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_identification_missing_field_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/identification" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(412))]" doc:name="assert that - http.status eq 412" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+
+    <munit:test name="post:/contact/address:application/json:ms3-contact-service-config-201-application/json-FlowTest" description="Verifying functionality of [post:/contact/address:application/json:ms3-contact-service-config-200-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_address_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/address" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(201))]" doc:name="assert that - http.status eq 201" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+
+    <munit:test name="post:/contact/address_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" description="Verifying functionality of [post:/contact/address_existing_record_found:application/json:ms3-contact-service-config-406-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_address_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/address" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(406))]" doc:name="assert that - http.status eq 406" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+    <munit:test name="post:/contact/address_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" description="Verifying functionality of [post:/contact/address_missing_required_field:application/json:ms3-contact-service-config-412-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_address_missing_field_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/address" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(412))]" doc:name="assert that - http.status eq 412" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+
+
+    <munit:test name="post:/contact/communication:application/json:ms3-contact-service-config-201-application/json-FlowTest" description="Verifying functionality of [post:/contact/communication:application/json:ms3-contact-service-config-200-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_communication_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/communication" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(201))]" doc:name="assert that - http.status eq 201" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+
+    <munit:test name="post:/contact/communication_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" description="Verifying functionality of [post:/contact/communication_existing_record_found:application/json:ms3-contact-service-config-406-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_communication_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/communication" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(406))]" doc:name="assert that - http.status eq 406" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+    <munit:test name="post:/contact/communication_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" description="Verifying functionality of [post:/contact/communication_missing_required_field:application/json:ms3-contact-service-config-412-application/json]" >
+        <munit:set payload="#[getResource('scaffolder/request/post_contact_communication_missing_field_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/contact/communication" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(412))]" doc:name="assert that - http.status eq 412" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+
+    </munit:test>
+
+
+
+    <munit:test name="patch:/contact/identification/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [patch:/contact/identification/id:application/json:ms3-contact-service-config-200-application/json]" >
+
+        <munit:set payload="#[getResource('scaffolder/request/patch_contact_identification_{id}_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="PATCH" path="/contact/identification/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${identification.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+       
+       
+        </munit:test>
+
+
+
+    <munit:test name="patch:/contact/address/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [patch:/contact/address/id:application/json:ms3-contact-service-config-200-application/json]" >
+
+        <munit:set payload="#[getResource('scaffolder/request/patch_contact_address_{id}_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="PATCH" path="/contact/address/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${address.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+       
+       
+        </munit:test>
+
+
+
+
+    <munit:test name="patch:/contact/communication/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [patch:/contact/communication/id:application/json:ms3-contact-service-config-200-application/json]" >
+
+        <munit:set payload="#[getResource('scaffolder/request/patch_contact_communication_{id}_application_json.json').asString()]" mimeType="application/json" doc:name="Set Message"/>
+
+        <http:request config-ref="HTTP_Request_Configuration" method="PATCH" path="/contact/communication/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${communication.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+                <http:header headerName="Content-Type" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+       
+       
+        </munit:test>
+  
+
+
+    <munit:test name="delete:/contact/identification/id:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [delete:/contact/identification/id:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="DELETE" path="/contact/identification/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${identification.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+            <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+  
+       
+           </munit:test>
+
+
+   <munit:test name="delete:/contact/identification/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" description="Verifying functionality of [delete:/contact/identification/id_no_record_found:ms3-contact-service-config-404-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="DELETE" path="/contact/identification/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${identification.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+            <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(404))]" doc:name="assert that - http.status eq 404" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+  
+       
+           </munit:test>
+
+
+
+
+    <munit:test name="delete:/contact/address/id:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [delete:/contact/address/id:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="DELETE" path="/contact/address/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${address.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+            <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+  
+       
+           </munit:test>
+
+
+   <munit:test name="delete:/contact/address/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" description="Verifying functionality of [delete:/contact/address/id_no_record_found:ms3-contact-service-config-404-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="DELETE" path="/contact/address/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${address.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+            <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(404))]" doc:name="assert that - http.status eq 404" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+  
+       
+           </munit:test>
+
+
+
+
+    <munit:test name="delete:/contact/communication/id:ms3-contact-service-config-200-application/json-FlowTest" description="Verifying functionality of [delete:/contact/communication/id:ms3-contact-service-config-200-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="DELETE" path="/contact/communication/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${communication.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+            </http:request-builder>
+        </http:request>
+            <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+  
+       
+           </munit:test>
+
+
+   <munit:test name="delete:/contact/communication/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" description="Verifying functionality of [delete:/contact/communication/id_no_record_found:ms3-contact-service-config-404-application/json]" >
+        <http:request config-ref="HTTP_Request_Configuration" method="DELETE" path="/contact/communication/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="${communication.id}"/>
+                <http:header headerName="Accept" value="application/json"/>
+
+
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599"/>
+        </http:request>
+            <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(404))]" doc:name="assert that - http.status eq 404" />
+        <munit:assert-true message="Payload is not type of java.util.Map" condition="#[payload is java.util.Map]" doc:name="Assert That - payload type of java.util.Map"/>
+  
+       
+           </munit:test>
+
+
+
+
+</mule>

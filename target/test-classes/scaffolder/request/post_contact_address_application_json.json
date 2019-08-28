@@ -1,0 +1,10 @@
+{
+"contactId" : 1,
+"type" : "MUNIT_TEST_DATA",
+"number" : "MUNIT_TEST_DATA",
+"street" : "MUNIT_TEST_DATA",
+"unit" : "MUNIT_TEST_DATA",
+"city" : "MUNIT_TEST_DATA",
+"state" : "MUNIT_TEST_DATA",
+"zipcode" : "1234"
+}

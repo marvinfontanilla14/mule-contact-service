@@ -1,0 +1,28 @@
+SUCCESS - Test get:/contact/identification_by_id:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test delete:/contact/address/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest finished Successfully.
+SUCCESS - Test get:/contact/address:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/communication:application/json:ms3-contact-service-config-201-application/json-FlowTest finished Successfully.
+SUCCESS - Test delete:/contact/identification/id:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test delete:/contact/communication/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest finished Successfully.
+SUCCESS - Test get:/contact/identification:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test get:/contact/address_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/identification_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/address_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/address:application/json:ms3-contact-service-config-201-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/address_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest finished Successfully.
+SUCCESS - Test patch:/contact/communication/id:application/json:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test delete:/contact/communication/id:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/communication_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest finished Successfully.
+SUCCESS - Test delete:/contact/address/id:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/identification_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest finished Successfully.
+SUCCESS - Test patch:/contact/address/id:application/json:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test get:/contact/communication:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/identification:application/json:ms3-contact-service-config-201-application/json-FlowTest finished Successfully.
+SUCCESS - Test patch:/contact/identification/id:application/json:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test get:/contact/communication_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest finished Successfully.
+SUCCESS - Test delete:/contact/identification/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest finished Successfully.
+SUCCESS - Test post:/contact/communication_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest finished Successfully.
+
+===============================================================================
+Tests run: 24 - Failures: 0 - Errors: 0 - Skipped: 0 - Time elapsed: 14.625 sec
+===============================================================================

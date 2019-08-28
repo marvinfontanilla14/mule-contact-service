@@ -93,10 +93,10 @@ uses:
         type: params.identification
         example: !include examples/identification.raml
       responses: 
-        200:
+        201:
           body:
             application/json:
-              example: !include examples/identification.raml
+              example: !include examples/postPatchResponse.raml
         404:
           body:
             application/json:
@@ -150,7 +150,7 @@ uses:
           200:
             body:
               application/json:
-                example: !include examples/identification.raml
+                example: !include examples/postPatchResponse.raml
           404:
             body:
               application/json:
@@ -347,10 +347,10 @@ uses:
         type: params.address
         example: !include examples/address.raml
       responses: 
-        200:
+        201:
           body:
             application/json:
-              example: !include examples/address.raml
+              example: !include examples/postPatchResponse.raml
         404:
           body:
             application/json:
@@ -404,7 +404,7 @@ uses:
           200:
             body:
               application/json:
-                example: !include examples/address.raml
+                example: !include examples/postPatchResponse.raml
           404:
             body:
               application/json:
@@ -519,9 +519,6 @@ uses:
         value:
           type: string
           required: false
-        preferred:
-          type: boolean
-          required: false
         limit:
           type: integer
           required: false
@@ -589,10 +586,10 @@ uses:
         type: params.communication
         example: !include examples/communication.raml
       responses: 
-        200:
+        201:
           body:
             application/json:
-              example: !include examples/communication.raml
+              example: !include examples/postPatchResponse.raml
         404:
           body:
             application/json:
@@ -646,7 +643,7 @@ uses:
           200:
             body:
               application/json:
-                example: !include examples/communication.raml
+                example: !include examples/postPatchResponse.raml
           404:
             body:
               application/json:
@@ -743,3 +740,5 @@ uses:
                   {
                       "message": "Internal error"
                   }
+                  
+ 

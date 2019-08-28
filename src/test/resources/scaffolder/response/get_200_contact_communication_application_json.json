@@ -1,0 +1,17 @@
+{
+"totalResults" : 1,
+"responseSize" : 1,
+"offset" : 0,
+"limit" : 25,
+"resultList" : [
+{
+"id" : 1,
+"contactId" : 1,
+"type" : "Mobile",
+"value" : "+0901910191",
+"preferred" : true,
+"dateTimeCreated" : "2019-08-27 21:27:45",
+"dateTimeUpdated" : "2019-08-27 21:27:45"
+}
+]
+}

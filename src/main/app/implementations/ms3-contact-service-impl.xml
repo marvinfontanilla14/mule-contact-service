@@ -1108,7 +1108,7 @@ return missingFields]]></scripting:script>
             <add-message-property key="type"
                 value="#[escapeParam(flowVars.requestParams.type)]" />
             <add-message-property key="value" value="#[escapeParam(flowVars.requestParams.value)]"/>
-            <add-message-property key="preferred" value="#[escapeParam(flowVars.requestParams.preferred)]"/>
+
             
             
         </message-properties-transformer>
@@ -1206,7 +1206,7 @@ return query]]></scripting:script>
         id: $.id,
         contactId: $.contact_id,
         type: $.type,
-        number: $.value,
+        value: $.value,
         (preferred: $.preferred) when $.preferred != null,
         dateTimeCreated : $.date_time_created,
         dateTimeUpdated : $.date_time_updated
@@ -1383,7 +1383,7 @@ if (flowVars.params.value != null && flowVars.params.value != ""){
      query+= " value='"+escapeParam(flowVars.params.value)+"',"
 }
 if (flowVars.params.preferred != null && flowVars.params.preferred != ""){
-     query+= " preferred='"+escapeParam(flowVars.params.preferred)+"',"
+     query+= " preferred="+flowVars.params.preferred+","
 }
 
 
