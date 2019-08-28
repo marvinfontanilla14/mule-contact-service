@@ -23,25 +23,30 @@ payload]]></dw:set-variable>
         <apikit:console config-ref="ms3-contact-service-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="delete:/contact/identification/{id}:ms3-contact-service-config">
-        <set-payload value="{&#xA;    &quot;message&quot;: &quot;Record has been deleted&quot;&#xA;}" doc:name="Set Payload"/>
+        <flow-ref name="impl-delete-identification" doc:name="impl-delete-identification"/>
+
     </flow>
     <flow name="delete:/contact/communication/{id}:ms3-contact-service-config">
         <set-payload value="{&#xA;    &quot;message&quot;: &quot;Record has been deleted&quot;&#xA;}" doc:name="Set Payload"/>
     </flow>
     <flow name="delete:/contact/address/{id}:ms3-contact-service-config">
-        <set-payload value="{&#xA;    &quot;message&quot;: &quot;Record has been deleted&quot;&#xA;}" doc:name="Set Payload"/>
+        <flow-ref name="impl-delete-address" doc:name="impl-delete-address"/>
+
     </flow>
     <flow name="patch:/contact/address/{id}:application/json:ms3-contact-service-config">
-        <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Home&quot;,&#xA;&quot;street&quot; : &quot;street&quot;,&#xA;&quot;unit&quot; : &quot;21 unit&quot;,&#xA;&quot;city&quot; : &quot;magic city&quot;,&#xA;&quot;state&quot; : &quot;US State&quot;,&#xA;&quot;zipcode&quot; : &quot;1234&quot;&#xA;}" doc:name="Set Payload"/>
+        <flow-ref name="impl-patch-address" doc:name="impl-patch-address"/>
+
     </flow>
     <flow name="patch:/contact/identification/{id}:application/json:ms3-contact-service-config">
-        <set-payload value="{&#xA;&quot;firstName&quot; : &quot;Marvin&quot;,&#xA;&quot;lastName&quot; : &quot;Fontanilla&quot;,&#xA;&quot;dob&quot; : &quot;03/04/1993&quot;,&#xA;&quot;gender&quot; : &quot;M&quot;,&#xA;&quot;title&quot; : &quot;Integration Developer&quot;&#xA;}" doc:name="Set Payload"/>
+        <flow-ref name="impl-patch-identification" doc:name="impl-patch-identification"/>
+
     </flow>
     <flow name="patch:/contact/communication/{id}:application/json:ms3-contact-service-config">
         <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Mobile&quot;,&#xA;&quot;value&quot; : &quot;+1019101911&quot;,&#xA;&quot;preferred&quot; : true&#xA;}" doc:name="Set Payload"/>
     </flow>
     <flow name="get:/contact/address:ms3-contact-service-config">
-        <set-payload value="{&#xA;&quot;totalResults&quot; : 1,&#xA;&quot;responseSize&quot; : 1,&#xA;&quot;offset&quot; : 0,&#xA;&quot;limit&quot; : 25,&#xA;&quot;resultList&quot; : [&#xA;{&#xA;&quot;id&quot; : 1,&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Home&quot;,&#xA;&quot;street&quot; : &quot;street&quot;,&#xA;&quot;unit&quot; : &quot;21 unit&quot;,&#xA;&quot;city&quot; : &quot;magic city&quot;,&#xA;&quot;state&quot; : &quot;US State&quot;,&#xA;&quot;zipcode&quot; : &quot;1234&quot;&#xA;}&#xA;]&#xA;}" doc:name="Set Payload"/>
+        <flow-ref name="impl-get-address" doc:name="impl-get-address"/>
+
     </flow>
     <flow name="get:/contact/communication:ms3-contact-service-config">
         <set-payload value="{&#xA;&quot;totalResults&quot; : 1,&#xA;&quot;responseSize&quot; : 1,&#xA;&quot;offset&quot; : 0,&#xA;&quot;limit&quot; : 25,&#xA;&quot;resultList&quot; : [&#xA;{&#xA;&quot;id&quot; : 1,&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Mobile&quot;,&#xA;&quot;value&quot; : &quot;+0901910191&quot;,&#xA;&quot;preferred&quot; : true&#xA;}&#xA;]&#xA;}" doc:name="Set Payload"/>
@@ -51,7 +56,8 @@ payload]]></dw:set-variable>
 
     </flow>
     <flow name="post:/contact/address:application/json:ms3-contact-service-config">
-        <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Home&quot;,&#xA;&quot;street&quot; : &quot;street&quot;,&#xA;&quot;unit&quot; : &quot;21 unit&quot;,&#xA;&quot;city&quot; : &quot;magic city&quot;,&#xA;&quot;state&quot; : &quot;US State&quot;,&#xA;&quot;zipcode&quot; : &quot;1234&quot;&#xA;}" doc:name="Set Payload"/>
+        <flow-ref name="impl-post-address" doc:name="impl-post-address"/>
+
     </flow>
     <flow name="post:/contact/communication:application/json:ms3-contact-service-config">
         <set-payload value="{&#xA;&quot;userId&quot; : 1,&#xA;&quot;type&quot; : &quot;Mobile&quot;,&#xA;&quot;value&quot; : &quot;+1019101911&quot;,&#xA;&quot;preferred&quot; : true&#xA;}" doc:name="Set Payload"/>

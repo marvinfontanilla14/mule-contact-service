@@ -11,6 +11,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+    
     <sub-flow name="impl-post-identification">
         <set-property propertyName="http.status" value="201" doc:name="Set initial http.status"/>
         <dw:transform-message doc:name="Set params">
@@ -115,6 +117,9 @@ def hasWhere = false
 def conditionQuery = " WHERE "
 
 
+ conditionQuery+= " deleted is null and"
+	 hasWhere = true
+
 if (flowVars.id != null){
 	 conditionQuery+= " id="+flowVars.id+" and"
 	 hasWhere = true
@@ -186,7 +191,7 @@ return query]]></scripting:script>
 	limit: flowVars.limit when flowVars.limit != null otherwise 25,
 	resultList : flowVars.foundRecord map {
 		id: $.id,
-		firtName: $.first_name,
+		firstName: $.first_name,
 		lastName: $.last_name,
 		dob: $.dob  as :date {format: "yyyy-MM-dd"} as :string {format:"MM/dd/yyyy"},
 		gender: $.gender,
@@ -219,6 +224,8 @@ def missingFields = new ArrayList()
 def hasWhere = false
 def conditionQuery = " WHERE "
 
+ conditionQuery+= " deleted is null and"
+	 hasWhere = true
 
 if (flowVars.id != null){
 	 conditionQuery+= " id="+flowVars.id+" and"
@@ -289,4 +296,1159 @@ return query]]></scripting:script>
 		</enricher>
 	</sub-flow>
 
+
+  <sub-flow name="impl-patch-identification">
+        <set-property propertyName="http.status" value="200" doc:name="Set initial http.status"/>
+        <set-variable variableName="idCont" value="#[flowVars.id]" doc:name="Variable - idCont"/>
+        <dw:transform-message doc:name="Set params">
+            <dw:set-variable variableName="params"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	firstName : flowVars.requestPayload.firstName,
+	lastName : flowVars.requestPayload.lastName,
+	dob : flowVars.requestPayload.dob as :date {format: "MM/dd/yyyy"} as :string {format:"yyyy-MM-dd"},
+	gender : flowVars.requestPayload.gender,
+	title : flowVars.requestPayload.title
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <enricher target="#[flowVars.requiredFields]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate required fields">
+                <scripting:script engine="Groovy"><![CDATA[def missingFields = new ArrayList()
+
+if (flowVars.params.firstName == null || (flowVars.params.firstName != null && flowVars.params.firstName == "")){
+	 missingFields.add("firstName")
+}
+if (flowVars.params.lastName == null || (flowVars.params.lastName != null && flowVars.params.lastName == "")){
+	 missingFields.add("lastName")
+}
+
+
+return missingFields]]></scripting:script>
+            </scripting:component>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.requiredFields.size() &gt; 0]">
+                <set-variable variableName="errorMsg" value="Missing required fields #[flowVars.requiredFields]" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-precondition-failed" doc:name="common-precondition-failed"/>
+            </when>
+            <otherwise>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties - remove vars">
+                    <delete-message-property key="id"/>
+                </message-properties-transformer>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                    <add-message-property key="eq_firstName" value="#[flowVars.params.firstName]"/>
+                    <add-message-property key="eq_lastName" value="#[flowVars.params.lastName]"/>
+                </message-properties-transformer>
+                <flow-ref name="find-identification" doc:name="find-identification"/>
+                <choice doc:name="Choice">
+                    <when expression="#[flowVars.foundRecord.size() &gt; 1 || flowVars.foundRecord.size() == 1 &amp;&amp; flowVars.foundRecord[0].id != flowVars.idCont]">
+                        <set-variable variableName="errorMsg" value="Existing record found" doc:name="Variable - errorMsg"/>
+                        <flow-ref name="common-existing-record-found" doc:name="common-existing-record-found"/>
+                    </when>
+                    <otherwise>
+                        <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+                            <scripting:component doc:name="Groovy">
+                                <scripting:script engine="Groovy"><![CDATA[def query = "UPDATE identification SET"
+def missingFields = new ArrayList()
+
+def escapeParam(str) {
+	if(str == null) {
+		return str
+	} else {
+		return str.replaceAll("\\'","\\'\\'")
+	}
+}
+
+
+if (flowVars.params.firstName != null && flowVars.params.firstName != ""){
+	 query+= " first_name='"+escapeParam(flowVars.params.firstName)+"',"
+}
+if (flowVars.params.lastName != null && flowVars.params.lastName != ""){
+	 query+= " last_name='"+escapeParam(flowVars.params.lastName)+"',"
+}
+if (flowVars.params.dob != null && flowVars.params.dob != ""){
+	 query+= " dob='"+escapeParam(flowVars.params.dob)+"',"
+}
+if (flowVars.params.gender != null && flowVars.params.gender != ""){
+	 query+= " gender='"+escapeParam(flowVars.params.gender)+"',"
+}
+if (flowVars.params.title != null && flowVars.params.title != ""){
+	 query+= " title='"+escapeParam(flowVars.params.title)+"',"
+}
+
+query = query.substring(0,query.size()-1)
+
+query += " WHERE id="+flowVars.idCont+" "
+
+return query]]></scripting:script>
+                            </scripting:component>
+                        </enricher>
+                        <enricher target="#[flowVars.updateResult]" doc:name="Message Enricher">
+                            <flow-ref name="db-contact-UPDATE-generic" doc:name="db-contact-UPDATE-generic"/>
+                        </enricher>
+                        <set-variable variableName="generatedId" value="#[flowVars.idCont]" doc:name="Variable - generatedId"/>
+                        <flow-ref name="common-put-success" doc:name="common-put-success"/>
+                    </otherwise>
+                </choice>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+
+
+  <sub-flow name="impl-delete-identification">
+        <set-property propertyName="http.status" value="200" doc:name="Set initial http.status"/>
+        <flow-ref name="find-identification" doc:name="find-identification"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.foundRecord.size() == 0]">
+                <set-variable variableName="errorMsg" value="No record found" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-no-record-found" doc:name="common-no-record-found"/>
+            </when>
+            <otherwise>
+                <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+                    <scripting:component doc:name="Groovy">
+                        <scripting:script engine="Groovy"><![CDATA[def query = "UPDATE identification SET"
+def missingFields = new ArrayList()
+
+def escapeParam(str) {
+	if(str == null) {
+		return str
+	} else {
+		return str.replaceAll("\\'","\\'\\'")
+	}
+}
+
+
+query+= " deleted=1,"
+
+query = query.substring(0,query.size()-1)
+
+query += " WHERE id="+flowVars.id+" "
+
+return query]]></scripting:script>
+                    </scripting:component>
+                </enricher>
+                <enricher target="#[flowVars.updateResult]" doc:name="Message Enricher">
+                    <flow-ref name="db-contact-UPDATE-generic" doc:name="db-contact-UPDATE-generic"/>
+                </enricher>
+                <set-variable variableName="generatedId" value="#[flowVars.id]" doc:name="Variable - generatedId"/>
+                <flow-ref name="common-delete-success" doc:name="common-delete-success"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+
+<!-- address -->
+    
+  <sub-flow name="impl-post-address">
+        <set-property propertyName="http.status" value="201" doc:name="Set initial http.status"/>
+        <dw:transform-message doc:name="Set params">
+            <dw:set-variable variableName="params"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+    contactId : flowVars.requestPayload.contactId,
+    type : flowVars.requestPayload.type,
+    number : flowVars.requestPayload.number,
+    street : flowVars.requestPayload.street,
+    unit : flowVars.requestPayload.unit,
+    city : flowVars.requestPayload.city,
+    state : flowVars.requestPayload.state,
+    zipcode : flowVars.requestPayload.zipcode
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <enricher target="#[flowVars.requiredFields]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate required fields">
+                <scripting:script engine="Groovy"><![CDATA[def missingFields = new ArrayList()
+
+if (flowVars.params.contactId == null){
+     missingFields.add("contactId")
+}
+if (flowVars.params.type == null || (flowVars.params.type != null && flowVars.params.type == "")){
+     missingFields.add("type")
+}
+if (flowVars.params.number == null || (flowVars.params.number != null && flowVars.params.number == "")){
+     missingFields.add("number")
+}
+if (flowVars.params.street == null || (flowVars.params.street != null && flowVars.params.street == "")){
+     missingFields.add("street")
+}
+if (flowVars.params.unit == null || (flowVars.params.unit != null && flowVars.params.unit == "")){
+     missingFields.add("unit")
+}
+if (flowVars.params.city == null || (flowVars.params.city != null && flowVars.params.city == "")){
+     missingFields.add("city")
+}
+if (flowVars.params.state == null || (flowVars.params.state != null && flowVars.params.state == "")){
+     missingFields.add("state")
+}
+if (flowVars.params.zipcode == null || (flowVars.params.zipcode != null && flowVars.params.zipcode == "")){
+     missingFields.add("zipcode")
+}
+return missingFields]]></scripting:script>
+            </scripting:component>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.requiredFields.size() &gt; 0]">
+                <set-variable variableName="errorMsg" value="Missing required fields #[flowVars.requiredFields]" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-precondition-failed" doc:name="common-precondition-failed"/>
+            </when>
+            <otherwise>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                    <add-message-property key="eq_street" value="#[flowVars.params.street]"/>
+                    <add-message-property key="eq_type" value="#[flowVars.params.type]"/>
+                    <add-message-property key="contactId" value="#[flowVars.params.contactId]"/>
+                    <add-message-property key="eq_city" value="#[flowVars.params.city]"/>
+                    <add-message-property key="eq_state" value="#[flowVars.params.state]"/>
+                    <add-message-property key="eq_zipcode" value="#[flowVars.params.zipcode]"/>
+                    <add-message-property key="eq_number" value="#[flowVars.params.number]"/>
+                </message-properties-transformer>
+                <flow-ref name="find-address" doc:name="find-address"/>
+                <choice doc:name="Choice">
+                    <when expression="#[flowVars.foundRecord.size() &gt; 0]">
+                        <set-variable variableName="errorMsg" value="Existing record found" doc:name="Variable - errorMsg"/>
+                        <flow-ref name="common-existing-record-found" doc:name="common-existing-record-found"/>
+                    </when>
+                    <otherwise>
+                        <enricher target="#[flowVars.insertResult]" doc:name="Message Enricher">
+                            <flow-ref name="db-contact-INSERT-address" doc:name="db-contact-INSERT-address"/>
+                        </enricher>
+                        <set-variable variableName="generatedId" value="#[flowVars.insertResult[0]['GENERATED_KEY']]" doc:name="Variable - generatedId"/>
+                        <flow-ref name="common-post-success" doc:name="common-post-success"/>
+                    </otherwise>
+                </choice>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+    <sub-flow name="impl-get-address">
+
+        <message-properties-transformer scope="invocation"
+            doc:name="Init variables">
+            <add-message-property key="limit"
+                value="#[flowVars.requestParams.limit]" />
+            <add-message-property key="offset"
+                value="#[flowVars.requestParams.offset]" />
+            <add-message-property key="orderBy"
+                value="#[flowVars.requestParams.orderBy]" />
+            <add-message-property key="recordOrder"
+                value="#[flowVars.requestParams.recordOrder]" />
+                
+            <add-message-property key="id"
+                value="#[flowVars.requestParams.id]" />
+            <add-message-property key="contactId"
+                value="#[escapeParam(flowVars.requestParams.contactId)]" />
+            <add-message-property key="type"
+                value="#[escapeParam(flowVars.requestParams.type)]" />
+            <add-message-property key="street" value="#[escapeParam(flowVars.requestParams.street)]"/>
+            <add-message-property key="unit" value="#[escapeParam(flowVars.requestParams.unit)]"/>
+            <add-message-property key="city" value="#[escapeParam(flowVars.requestParams.city)]"/>
+            <add-message-property key="state" value="#[escapeParam(flowVars.requestParams.state)]"/>
+            <add-message-property key="zipcode" value="#[escapeParam(flowVars.requestParams.zipcode)]"/>
+            <add-message-property key="number" value="#[escapeParam(flowVars.requestParams.number)]"/>
+            
+            
+        </message-properties-transformer>
+        <dw:transform-message doc:name="Order by column mapper">
+            <dw:set-variable variableName="orderByColumnMapping"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+    id : "id",
+    type : "type",
+    number : "number",
+    street: "street",
+    unit: "unit",
+    city: "city",
+    state: "state",
+    zipcode: "zipcode"
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <flow-ref name="find-address" doc:name="find-address" />
+        <enricher target="#[flowVars.totalResults]" doc:name="Message Enricher">
+            <processor-chain doc:name="Processor Chain">
+                <enricher target="#[flowVars.dynamicQuery]"
+                    doc:name="Message Enricher">
+                    <scripting:component doc:name="Groovy">
+                        <scripting:script engine="Groovy"><![CDATA[def query = "SELECT * FROM address"
+def missingFields = new ArrayList()
+def hasWhere = false
+def conditionQuery = " WHERE "
+
+ conditionQuery+= " deleted is null and"
+     hasWhere = true
+
+if (flowVars.id != null){
+     conditionQuery+= " id="+flowVars.id+" and"
+     hasWhere = true
+}
+
+if (flowVars.contactId != null){
+     conditionQuery+= " contact_id="+flowVars.contactId+" and"
+     hasWhere = true
+}
+
+
+if (flowVars.type != null && flowVars.type != ""){
+     conditionQuery+= " type like '%"+flowVars.type+"%' and"
+     hasWhere = true
+}
+if (flowVars.number != null && flowVars.number != ""){
+     conditionQuery+= " number like '%"+flowVars.number+"%' and"
+     hasWhere = true
+}
+
+if (flowVars.street != null && flowVars.street != ""){
+     conditionQuery+= " street like '%"+flowVars.street+"%' and"
+     hasWhere = true
+}
+
+
+if (flowVars.unit != null && flowVars.unit != ""){
+     conditionQuery+= " unit like '%"+flowVars.unit+"%' and"
+     hasWhere = true
+}
+if (flowVars.city != null && flowVars.city != ""){
+     conditionQuery+= " city like '%"+flowVars.city+"%' and"
+     hasWhere = true
+}
+if (flowVars.state != null && flowVars.state != ""){
+     conditionQuery+= " state like '%"+flowVars.state+"%' and"
+     hasWhere = true
+}
+if (flowVars.zipcode != null && flowVars.zipcode != ""){
+     conditionQuery+= " zipcode like '%"+flowVars.zipcode+"%' and"
+     hasWhere = true
+}
+
+
+
+
+if (flowVars.eq_type != null && flowVars.eq_type != ""){
+     conditionQuery+= " type = '"+flowVars.eq_type+"' and"
+     hasWhere = true
+}
+
+if (flowVars.eq_number != null && flowVars.eq_number != ""){
+     conditionQuery+= " number = '"+flowVars.eq_number+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_street != null && flowVars.eq_street != ""){
+     conditionQuery+= " street = '"+flowVars.eq_street+"' and"
+     hasWhere = true
+}
+
+
+if (flowVars.eq_unit != null && flowVars.eq_unit != ""){
+     conditionQuery+= " unit = '"+flowVars.eq_unit+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_city != null && flowVars.eq_city != ""){
+     conditionQuery+= " city = '"+flowVars.eq_city+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_state != null && flowVars.eq_state != ""){
+     conditionQuery+= " state = '"+flowVars.eq_state+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_zipcode != null && flowVars.eq_zipcode != ""){
+     conditionQuery+= " zipcode = '"+flowVars.eq_zipcode+"' and"
+     hasWhere = true
+}
+
+
+
+if(hasWhere){
+    query += conditionQuery
+    query = query.substring(0,query.size()-3)
+}
+
+if(flowVars.orderBy != null) {
+    query += " order by "+flowVars.orderBy+" "
+}
+if(flowVars.recordOrder != null) {
+    query += " "+flowVars.recordOrder+" "
+}
+
+
+
+return query]]></scripting:script>
+                    </scripting:component>
+                </enricher>
+                <flow-ref name="db-contact-SELECT-generic" doc:name="db-contact-SELECT-generic"/>
+                <set-payload value="#[payload.size()]" doc:name="Set Payload" />
+
+            </processor-chain>
+        </enricher>
+
+        <dw:transform-message doc:name="Format Payload">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+    totalResults: flowVars.totalResults,
+    responseSize: (sizeOf flowVars.foundRecord),
+    offset: flowVars.offset when flowVars.offset != null otherwise 0,
+    limit: flowVars.limit when flowVars.limit != null otherwise 25,
+    resultList : flowVars.foundRecord map {
+        id: $.id,
+        contactId: $.contact_id,
+        type: $.type,
+        number: $.number,
+        street: $.street,
+        unit: $.unit,
+        city: $.city,
+        state: $.state,
+        zipcode: $.zipcode,
+        dateTimeCreated : $.date_time_created,
+        dateTimeUpdated : $.date_time_updated
+    }
+}]]></dw:set-payload>
+        </dw:transform-message>
+
+
+    </sub-flow>
+
+
+    <sub-flow name="find-address">
+
+
+        <enricher target="#[flowVars.orderBy]" doc:name="Message Enricher">
+            <scripting:component doc:name="validate order by mapping">
+                <scripting:script engine="Groovy"><![CDATA[return (flowVars.orderBy != null ? flowVars.orderByColumnMapping."$flowVars.orderBy" : null)
+]]></scripting:script>
+            </scripting:component>
+        </enricher>
+
+
+        <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate Select Query">
+                <scripting:script engine="Groovy"><![CDATA[def query = "SELECT * FROM address"
+def missingFields = new ArrayList()
+def hasWhere = false
+def conditionQuery = " WHERE "
+
+ conditionQuery+= " deleted is null and"
+     hasWhere = true
+
+if (flowVars.id != null){
+     conditionQuery+= " id="+flowVars.id+" and"
+     hasWhere = true
+}
+
+if (flowVars.contactId != null){
+     conditionQuery+= " contact_id="+flowVars.contactId+" and"
+     hasWhere = true
+}
+
+
+if (flowVars.type != null && flowVars.type != ""){
+     conditionQuery+= " type like '%"+flowVars.type+"%' and"
+     hasWhere = true
+}
+if (flowVars.number != null && flowVars.number != ""){
+     conditionQuery+= " number like '%"+flowVars.number+"%' and"
+     hasWhere = true
+}
+
+if (flowVars.street != null && flowVars.street != ""){
+     conditionQuery+= " street like '%"+flowVars.street+"%' and"
+     hasWhere = true
+}
+
+
+if (flowVars.unit != null && flowVars.unit != ""){
+     conditionQuery+= " unit like '%"+flowVars.unit+"%' and"
+     hasWhere = true
+}
+if (flowVars.city != null && flowVars.city != ""){
+     conditionQuery+= " city like '%"+flowVars.city+"%' and"
+     hasWhere = true
+}
+if (flowVars.state != null && flowVars.state != ""){
+     conditionQuery+= " state like '%"+flowVars.state+"%' and"
+     hasWhere = true
+}
+if (flowVars.zipcode != null && flowVars.zipcode != ""){
+     conditionQuery+= " zipcode like '%"+flowVars.zipcode+"%' and"
+     hasWhere = true
+}
+
+
+
+
+if (flowVars.eq_type != null && flowVars.eq_type != ""){
+     conditionQuery+= " type = '"+flowVars.eq_type+"' and"
+     hasWhere = true
+}
+
+if (flowVars.eq_number != null && flowVars.eq_number != ""){
+     conditionQuery+= " number = '"+flowVars.eq_number+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_street != null && flowVars.eq_street != ""){
+     conditionQuery+= " street = '"+flowVars.eq_street+"' and"
+     hasWhere = true
+}
+
+
+if (flowVars.eq_unit != null && flowVars.eq_unit != ""){
+     conditionQuery+= " unit = '"+flowVars.eq_unit+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_city != null && flowVars.eq_city != ""){
+     conditionQuery+= " city = '"+flowVars.eq_city+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_state != null && flowVars.eq_state != ""){
+     conditionQuery+= " state = '"+flowVars.eq_state+"' and"
+     hasWhere = true
+}
+if (flowVars.eq_zipcode != null && flowVars.eq_zipcode != ""){
+     conditionQuery+= " zipcode = '"+flowVars.eq_zipcode+"' and"
+     hasWhere = true
+}
+
+
+
+if(hasWhere){
+    query += conditionQuery
+    query = query.substring(0,query.size()-3)
+}
+
+if(flowVars.orderBy != null) {
+    query += " order by "+flowVars.orderBy+" "
+}
+if(flowVars.recordOrder != null) {
+    query += " "+flowVars.recordOrder+" "
+}
+
+
+if(flowVars.limit != null) {
+    query += " limit "+flowVars.limit+" "
+} else{
+    query += " limit 25 "
+}
+
+if(flowVars.offset != null) {
+    query += " offset "+flowVars.offset+" "
+}
+
+
+
+return query]]></scripting:script>
+            </scripting:component>
+
+        </enricher>
+        <enricher target="#[flowVars.foundRecord]" doc:name="Message Enricher">
+            <flow-ref name="db-contact-SELECT-generic" doc:name="db-contact-SELECT-generic"/>
+        </enricher>
+    </sub-flow>
+
+
+  <sub-flow name="impl-patch-address">
+        <set-property propertyName="http.status" value="200" doc:name="Set initial http.status"/>
+        <set-variable variableName="idCont" value="#[flowVars.id]" doc:name="Variable - idCont"/>
+        <dw:transform-message doc:name="Set params">
+            <dw:set-variable variableName="params"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+    contactId : flowVars.requestPayload.contactId,
+    type : flowVars.requestPayload.type,
+    number : flowVars.requestPayload.number,
+    street : flowVars.requestPayload.street,
+    unit : flowVars.requestPayload.unit,
+    city : flowVars.requestPayload.city,
+    state : flowVars.requestPayload.state,
+    zipcode : flowVars.requestPayload.zipcode
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <enricher target="#[flowVars.requiredFields]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate required fields">
+                <scripting:script engine="Groovy"><![CDATA[def missingFields = new ArrayList()
+
+if (flowVars.params.contactId == null){
+     missingFields.add("contactId")
+}
+if (flowVars.params.type == null || (flowVars.params.type != null && flowVars.params.type == "")){
+     missingFields.add("type")
+}
+if (flowVars.params.number == null || (flowVars.params.number != null && flowVars.params.number == "")){
+     missingFields.add("number")
+}
+if (flowVars.params.street == null || (flowVars.params.street != null && flowVars.params.street == "")){
+     missingFields.add("street")
+}
+if (flowVars.params.unit == null || (flowVars.params.unit != null && flowVars.params.unit == "")){
+     missingFields.add("unit")
+}
+if (flowVars.params.city == null || (flowVars.params.city != null && flowVars.params.city == "")){
+     missingFields.add("city")
+}
+if (flowVars.params.state == null || (flowVars.params.state != null && flowVars.params.state == "")){
+     missingFields.add("state")
+}
+if (flowVars.params.zipcode == null || (flowVars.params.zipcode != null && flowVars.params.zipcode == "")){
+     missingFields.add("zipcode")
+}
+return missingFields]]></scripting:script>
+            </scripting:component>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.requiredFields.size() &gt; 0]">
+                <set-variable variableName="errorMsg" value="Missing required fields #[flowVars.requiredFields]" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-precondition-failed" doc:name="common-precondition-failed"/>
+            </when>
+            <otherwise>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties - remove vars">
+                    <delete-message-property key="id"/>
+                </message-properties-transformer>
+                 <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                    <add-message-property key="eq_street" value="#[flowVars.params.street]"/>
+                    <add-message-property key="eq_type" value="#[flowVars.params.type]"/>
+                    <add-message-property key="contactId" value="#[flowVars.params.contactId]"/>
+                    <add-message-property key="eq_city" value="#[flowVars.params.city]"/>
+                    <add-message-property key="eq_state" value="#[flowVars.params.state]"/>
+                    <add-message-property key="eq_zipcode" value="#[flowVars.params.zipcode]"/>
+                    <add-message-property key="eq_number" value="#[flowVars.params.number]"/>
+                </message-properties-transformer>
+                <flow-ref name="find-address" doc:name="find-address"/>
+                <choice doc:name="Choice">
+                    <when expression="#[flowVars.foundRecord.size() &gt; 1 || flowVars.foundRecord.size() == 1 &amp;&amp; flowVars.foundRecord[0].id != flowVars.idCont]">
+                        <set-variable variableName="errorMsg" value="Existing record found" doc:name="Variable - errorMsg"/>
+                        <flow-ref name="common-existing-record-found" doc:name="common-existing-record-found"/>
+                    </when>
+                    <otherwise>
+                        <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+                            <scripting:component doc:name="Groovy">
+                                <scripting:script engine="Groovy"><![CDATA[def query = "UPDATE address SET"
+def missingFields = new ArrayList()
+
+def escapeParam(str) {
+    if(str == null) {
+        return str
+    } else {
+        return str.replaceAll("\\'","\\'\\'")
+    }
+}
+
+
+if (flowVars.params.type != null && flowVars.params.type != ""){
+     query+= " type='"+escapeParam(flowVars.params.type)+"',"
+}
+if (flowVars.params.number != null && flowVars.params.number != ""){
+     query+= " number='"+escapeParam(flowVars.params.number)+"',"
+}
+if (flowVars.params.street != null && flowVars.params.street != ""){
+     query+= " street='"+escapeParam(flowVars.params.street)+"',"
+}
+if (flowVars.params.unit != null && flowVars.params.unit != ""){
+     query+= " unit='"+escapeParam(flowVars.params.unit)+"',"
+}
+if (flowVars.params.city != null && flowVars.params.city != ""){
+     query+= " city='"+escapeParam(flowVars.params.city)+"',"
+}
+if (flowVars.params.state != null && flowVars.params.state != ""){
+     query+= " state='"+escapeParam(flowVars.params.state)+"',"
+}
+if (flowVars.params.zipcode != null && flowVars.params.zipcode != ""){
+     query+= " zipcode='"+escapeParam(flowVars.params.zipcode)+"',"
+}
+
+query = query.substring(0,query.size()-1)
+
+query += " WHERE id="+flowVars.idCont+" "
+
+return query]]></scripting:script>
+                            </scripting:component>
+                        </enricher>
+                        <enricher target="#[flowVars.updateResult]" doc:name="Message Enricher">
+                            <flow-ref name="db-contact-UPDATE-generic" doc:name="db-contact-UPDATE-generic"/>
+                        </enricher>
+                        <set-variable variableName="generatedId" value="#[flowVars.idCont]" doc:name="Variable - generatedId"/>
+                        <flow-ref name="common-put-success" doc:name="common-put-success"/>
+                    </otherwise>
+                </choice>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+
+
+  <sub-flow name="impl-delete-address">
+        <set-property propertyName="http.status" value="200" doc:name="Set initial http.status"/>
+        <flow-ref name="find-address" doc:name="find-address"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.foundRecord.size() == 0]">
+                <set-variable variableName="errorMsg" value="No record found" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-no-record-found" doc:name="common-no-record-found"/>
+            </when>
+            <otherwise>
+                <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+                    <scripting:component doc:name="Groovy">
+                        <scripting:script engine="Groovy"><![CDATA[def query = "UPDATE address SET"
+def missingFields = new ArrayList()
+
+def escapeParam(str) {
+    if(str == null) {
+        return str
+    } else {
+        return str.replaceAll("\\'","\\'\\'")
+    }
+}
+
+
+query+= " deleted=1,"
+
+query = query.substring(0,query.size()-1)
+
+query += " WHERE id="+flowVars.id+" "
+
+return query]]></scripting:script>
+                    </scripting:component>
+                </enricher>
+                <enricher target="#[flowVars.updateResult]" doc:name="Message Enricher">
+                    <flow-ref name="db-contact-UPDATE-generic" doc:name="db-contact-UPDATE-generic"/>
+                </enricher>
+                <set-variable variableName="generatedId" value="#[flowVars.id]" doc:name="Variable - generatedId"/>
+                <flow-ref name="common-delete-success" doc:name="common-delete-success"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+ 
+
+<!-- address -->
+
+
+
+<!-- communication -->
+    
+  <sub-flow name="impl-post-communication">
+        <set-property propertyName="http.status" value="201" doc:name="Set initial http.status"/>
+        <dw:transform-message doc:name="Set params">
+            <dw:set-variable variableName="params"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+    contactId : flowVars.requestPayload.contactId,
+    type : flowVars.requestPayload.type,
+    value : flowVars.requestPayload.value,
+    preferred : flowVars.requestPayload.preferred
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <enricher target="#[flowVars.requiredFields]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate required fields">
+                <scripting:script engine="Groovy"><![CDATA[def missingFields = new ArrayList()
+
+if (flowVars.params.contactId == null){
+     missingFields.add("contactId")
+}
+if (flowVars.params.type == null || (flowVars.params.type != null && flowVars.params.type == "")){
+     missingFields.add("type")
+}
+if (flowVars.params.value == null || (flowVars.params.value != null && flowVars.params.value == "")){
+     missingFields.add("value")
+}
+if (flowVars.params.preferred == null || (flowVars.params.preferred != null && flowVars.params.preferred == "")){
+     missingFields.add("preferred")
+}
+
+return missingFields]]></scripting:script>
+            </scripting:component>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.requiredFields.size() &gt; 0]">
+                <set-variable variableName="errorMsg" value="Missing required fields #[flowVars.requiredFields]" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-precondition-failed" doc:name="common-precondition-failed"/>
+            </when>
+            <otherwise>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                    <add-message-property key="contactId" value="#[flowVars.params.contactId]"/>
+                    <add-message-property key="eq_type" value="#[flowVars.params.type]"/>
+                    <add-message-property key="eq_value" value="#[flowVars.params.value]"/>
+                </message-properties-transformer>
+                <flow-ref name="find-communication" doc:name="find-communication"/>
+                <choice doc:name="Choice">
+                    <when expression="#[flowVars.foundRecord.size() &gt; 0]">
+                        <set-variable variableName="errorMsg" value="Existing record found" doc:name="Variable - errorMsg"/>
+                        <flow-ref name="common-existing-record-found" doc:name="common-existing-record-found"/>
+                    </when>
+                    <otherwise>
+                        <enricher target="#[flowVars.insertResult]" doc:name="Message Enricher">
+                            <flow-ref name="db-contact-INSERT-communication" doc:name="db-contact-INSERT-communication"/>
+                        </enricher>
+                        <set-variable variableName="generatedId" value="#[flowVars.insertResult[0]['GENERATED_KEY']]" doc:name="Variable - generatedId"/>
+                        <flow-ref name="common-post-success" doc:name="common-post-success"/>
+                    </otherwise>
+                </choice>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+    <sub-flow name="impl-get-communication">
+
+        <message-properties-transformer scope="invocation"
+            doc:name="Init variables">
+            <add-message-property key="limit"
+                value="#[flowVars.requestParams.limit]" />
+            <add-message-property key="offset"
+                value="#[flowVars.requestParams.offset]" />
+            <add-message-property key="orderBy"
+                value="#[flowVars.requestParams.orderBy]" />
+            <add-message-property key="recordOrder"
+                value="#[flowVars.requestParams.recordOrder]" />
+                
+            <add-message-property key="id"
+                value="#[flowVars.requestParams.id]" />
+            <add-message-property key="contactId"
+                value="#[escapeParam(flowVars.requestParams.contactId)]" />
+            <add-message-property key="type"
+                value="#[escapeParam(flowVars.requestParams.type)]" />
+            <add-message-property key="value" value="#[escapeParam(flowVars.requestParams.value)]"/>
+            <add-message-property key="preferred" value="#[escapeParam(flowVars.requestParams.preferred)]"/>
+            
+            
+        </message-properties-transformer>
+        <dw:transform-message doc:name="Order by column mapper">
+            <dw:set-variable variableName="orderByColumnMapping"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+    id : "id",
+    type : "type",
+    value : "value"
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <flow-ref name="find-communication" doc:name="find-communication" />
+        <enricher target="#[flowVars.totalResults]" doc:name="Message Enricher">
+            <processor-chain doc:name="Processor Chain">
+                <enricher target="#[flowVars.dynamicQuery]"
+                    doc:name="Message Enricher">
+                    <scripting:component doc:name="Groovy">
+                        <scripting:script engine="Groovy"><![CDATA[def query = "SELECT * FROM communication"
+def missingFields = new ArrayList()
+def hasWhere = false
+def conditionQuery = " WHERE "
+
+ conditionQuery+= " deleted is null and"
+     hasWhere = true
+
+if (flowVars.id != null){
+     conditionQuery+= " id="+flowVars.id+" and"
+     hasWhere = true
+}
+
+if (flowVars.contactId != null){
+     conditionQuery+= " contact_id="+flowVars.contactId+" and"
+     hasWhere = true
+}
+
+
+if (flowVars.type != null && flowVars.type != ""){
+     conditionQuery+= " type like '%"+flowVars.type+"%' and"
+     hasWhere = true
+}
+if (flowVars.value != null && flowVars.value != ""){
+     conditionQuery+= " value like '%"+flowVars.value+"%' and"
+     hasWhere = true
+}
+
+if (flowVars.eq_type != null && flowVars.eq_type != ""){
+     conditionQuery+= " type = '"+flowVars.eq_type+"' and"
+     hasWhere = true
+}
+
+if (flowVars.eq_value != null && flowVars.eq_value != ""){
+     conditionQuery+= " value = '"+flowVars.eq_value+"' and"
+     hasWhere = true
+}
+
+
+
+
+if(hasWhere){
+    query += conditionQuery
+    query = query.substring(0,query.size()-3)
+}
+
+if(flowVars.orderBy != null) {
+    query += " order by "+flowVars.orderBy+" "
+}
+if(flowVars.recordOrder != null) {
+    query += " "+flowVars.recordOrder+" "
+}
+
+
+
+
+return query]]></scripting:script>
+                    </scripting:component>
+                </enricher>
+                <flow-ref name="db-contact-SELECT-generic" doc:name="db-contact-SELECT-generic"/>
+                <set-payload value="#[payload.size()]" doc:name="Set Payload" />
+
+            </processor-chain>
+        </enricher>
+
+        <dw:transform-message doc:name="Format Payload">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+    totalResults: flowVars.totalResults,
+    responseSize: (sizeOf flowVars.foundRecord),
+    offset: flowVars.offset when flowVars.offset != null otherwise 0,
+    limit: flowVars.limit when flowVars.limit != null otherwise 25,
+    resultList : flowVars.foundRecord map {
+        id: $.id,
+        contactId: $.contact_id,
+        type: $.type,
+        number: $.value,
+        (preferred: $.preferred) when $.preferred != null,
+        dateTimeCreated : $.date_time_created,
+        dateTimeUpdated : $.date_time_updated
+    }
+}]]></dw:set-payload>
+        </dw:transform-message>
+
+
+    </sub-flow>
+
+
+    <sub-flow name="find-communication">
+
+
+        <enricher target="#[flowVars.orderBy]" doc:name="Message Enricher">
+            <scripting:component doc:name="validate order by mapping">
+                <scripting:script engine="Groovy"><![CDATA[return (flowVars.orderBy != null ? flowVars.orderByColumnMapping."$flowVars.orderBy" : null)
+]]></scripting:script>
+            </scripting:component>
+        </enricher>
+
+
+        <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate Select Query">
+                <scripting:script engine="Groovy"><![CDATA[def query = "SELECT * FROM communication"
+def missingFields = new ArrayList()
+def hasWhere = false
+def conditionQuery = " WHERE "
+
+ conditionQuery+= " deleted is null and"
+     hasWhere = true
+
+if (flowVars.id != null){
+     conditionQuery+= " id="+flowVars.id+" and"
+     hasWhere = true
+}
+
+if (flowVars.contactId != null){
+     conditionQuery+= " contact_id="+flowVars.contactId+" and"
+     hasWhere = true
+}
+
+
+if (flowVars.type != null && flowVars.type != ""){
+     conditionQuery+= " type like '%"+flowVars.type+"%' and"
+     hasWhere = true
+}
+if (flowVars.value != null && flowVars.value != ""){
+     conditionQuery+= " value like '%"+flowVars.value+"%' and"
+     hasWhere = true
+}
+
+if (flowVars.eq_type != null && flowVars.eq_type != ""){
+     conditionQuery+= " type = '"+flowVars.eq_type+"' and"
+     hasWhere = true
+}
+
+if (flowVars.eq_value != null && flowVars.eq_value != ""){
+     conditionQuery+= " value = '"+flowVars.eq_value+"' and"
+     hasWhere = true
+}
+
+
+
+
+if(hasWhere){
+    query += conditionQuery
+    query = query.substring(0,query.size()-3)
+}
+
+if(flowVars.orderBy != null) {
+    query += " order by "+flowVars.orderBy+" "
+}
+if(flowVars.recordOrder != null) {
+    query += " "+flowVars.recordOrder+" "
+}
+
+
+if(flowVars.limit != null) {
+    query += " limit "+flowVars.limit+" "
+} else{
+    query += " limit 25 "
+}
+
+if(flowVars.offset != null) {
+    query += " offset "+flowVars.offset+" "
+}
+
+
+
+return query]]></scripting:script>
+            </scripting:component>
+
+        </enricher>
+        <enricher target="#[flowVars.foundRecord]" doc:name="Message Enricher">
+            <flow-ref name="db-contact-SELECT-generic" doc:name="db-contact-SELECT-generic"/>
+        </enricher>
+    </sub-flow>
+
+
+  <sub-flow name="impl-patch-communication">
+        <set-property propertyName="http.status" value="200" doc:name="Set initial http.status"/>
+        <set-variable variableName="idCont" value="#[flowVars.id]" doc:name="Variable - idCont"/>
+        <dw:transform-message doc:name="Set params">
+            <dw:set-variable variableName="params"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+    contactId : flowVars.requestPayload.contactId,
+    type : flowVars.requestPayload.type,
+    value : flowVars.requestPayload.value,
+    preferred : flowVars.requestPayload.preferred
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <enricher target="#[flowVars.requiredFields]" doc:name="Message Enricher">
+            <scripting:component doc:name="Validate required fields">
+                <scripting:script engine="Groovy"><![CDATA[def missingFields = new ArrayList()
+
+if (flowVars.params.contactId == null){
+     missingFields.add("contactId")
+}
+if (flowVars.params.type == null || (flowVars.params.type != null && flowVars.params.type == "")){
+     missingFields.add("type")
+}
+if (flowVars.params.value == null || (flowVars.params.value != null && flowVars.params.value == "")){
+     missingFields.add("value")
+}
+
+
+return missingFields]]></scripting:script>
+            </scripting:component>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.requiredFields.size() &gt; 0]">
+                <set-variable variableName="errorMsg" value="Missing required fields #[flowVars.requiredFields]" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-precondition-failed" doc:name="common-precondition-failed"/>
+            </when>
+            <otherwise>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties - remove vars">
+                    <delete-message-property key="id"/>
+                </message-properties-transformer>
+                 <message-properties-transformer scope="invocation" doc:name="Message Properties">
+
+                    <add-message-property key="contactId" value="#[flowVars.params.contactId]"/>
+                    <add-message-property key="eq_type" value="#[flowVars.params.type]"/>
+                    <add-message-property key="eq_value" value="#[flowVars.params.value]"/>
+
+                </message-properties-transformer>
+                <flow-ref name="find-communication" doc:name="find-communication"/>
+                <choice doc:name="Choice">
+                    <when expression="#[flowVars.foundRecord.size() &gt; 1 || flowVars.foundRecord.size() == 1 &amp;&amp; flowVars.foundRecord[0].id != flowVars.idCont]">
+                        <set-variable variableName="errorMsg" value="Existing record found" doc:name="Variable - errorMsg"/>
+                        <flow-ref name="common-existing-record-found" doc:name="common-existing-record-found"/>
+                    </when>
+                    <otherwise>
+                        <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+                            <scripting:component doc:name="Groovy">
+                                <scripting:script engine="Groovy"><![CDATA[def query = "UPDATE communication SET"
+def missingFields = new ArrayList()
+
+def escapeParam(str) {
+    if(str == null) {
+        return str
+    } else {
+        return str.replaceAll("\\'","\\'\\'")
+    }
+}
+
+
+if (flowVars.params.type != null && flowVars.params.type != ""){
+     query+= " type='"+escapeParam(flowVars.params.type)+"',"
+}
+if (flowVars.params.value != null && flowVars.params.value != ""){
+     query+= " value='"+escapeParam(flowVars.params.value)+"',"
+}
+if (flowVars.params.preferred != null && flowVars.params.preferred != ""){
+     query+= " preferred='"+escapeParam(flowVars.params.preferred)+"',"
+}
+
+
+query = query.substring(0,query.size()-1)
+
+query += " WHERE id="+flowVars.idCont+" "
+
+return query]]></scripting:script>
+                            </scripting:component>
+                        </enricher>
+                        <enricher target="#[flowVars.updateResult]" doc:name="Message Enricher">
+                            <flow-ref name="db-contact-UPDATE-generic" doc:name="db-contact-UPDATE-generic"/>
+                        </enricher>
+                        <set-variable variableName="generatedId" value="#[flowVars.idCont]" doc:name="Variable - generatedId"/>
+                        <flow-ref name="common-put-success" doc:name="common-put-success"/>
+                    </otherwise>
+                </choice>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+
+
+  <sub-flow name="impl-delete-communication">
+        <set-property propertyName="http.status" value="200" doc:name="Set initial http.status"/>
+        <flow-ref name="find-communication" doc:name="find-communication"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.foundRecord.size() == 0]">
+                <set-variable variableName="errorMsg" value="No record found" doc:name="Variable - errorMsg"/>
+                <flow-ref name="common-no-record-found" doc:name="common-no-record-found"/>
+            </when>
+            <otherwise>
+                <enricher target="#[flowVars.dynamicQuery]" doc:name="Message Enricher">
+                    <scripting:component doc:name="Groovy">
+                        <scripting:script engine="Groovy"><![CDATA[def query = "UPDATE communication SET"
+def missingFields = new ArrayList()
+
+def escapeParam(str) {
+    if(str == null) {
+        return str
+    } else {
+        return str.replaceAll("\\'","\\'\\'")
+    }
+}
+
+
+query+= " deleted=1,"
+
+query = query.substring(0,query.size()-1)
+
+query += " WHERE id="+flowVars.id+" "
+
+return query]]></scripting:script>
+                    </scripting:component>
+                </enricher>
+                <enricher target="#[flowVars.updateResult]" doc:name="Message Enricher">
+                    <flow-ref name="db-contact-UPDATE-generic" doc:name="db-contact-UPDATE-generic"/>
+                </enricher>
+                <set-variable variableName="generatedId" value="#[flowVars.id]" doc:name="Variable - generatedId"/>
+                <flow-ref name="common-delete-success" doc:name="common-delete-success"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+ 
+
+<!-- communication -->
 </mule>
