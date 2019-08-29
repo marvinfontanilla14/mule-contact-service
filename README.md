@@ -6,26 +6,26 @@
 > Download and setup the following software 
 * MySQL Server Community edition
   * Download page:
-	[MySql Server](https://dev.mysql.com/downloads/mysql/) 	
+  [MySql Server](https://dev.mysql.com/downloads/mysql/)  
 * MySQL Workbench Community edition
   * Download page:
-	[MySql Workbench](https://dev.mysql.com/downloads/workbench/) 	
+  [MySql Workbench](https://dev.mysql.com/downloads/workbench/)   
 * Mulesoft Mule 3.9 and Studio 6.6
   * Download page:
-	[Mulesoft IDE](https://www.mulesoft.com/lp/dl/studio/previous) 	
+  [Mulesoft IDE](https://www.mulesoft.com/lp/dl/studio/previous)  
 * JDK8
   * Download page:
-	[JDK8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) 	
+  [JDK8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)  
 * Maven
   * Download page:
-	[Maven](https://maven.apache.org/download.cgi) 	
+  [Maven](https://maven.apache.org/download.cgi)  
 * Git
   * Download page:
-	[Git](https://git-scm.com/downloads) 	
+  [Git](https://git-scm.com/downloads)  
     
 ### Steps to Up and Run mule-contact-service:
 
-  > Once you are done setting up the above software, the following are steps to up and run mule-contact-service
+  > Once you are done setting up the above software, the following are the steps to up and run mule-contact-service
 1. Clone or Download mule-contact-service
 2. From the downloaded project, locate the contact database script **ms3-contact-service\database\contactdb.sql** you can also find the **Database Diagram** on this folder named: **contacterrdiagram**
 3. Open MySQL Workbench and run the script to generate the contact database and sample data
@@ -38,4 +38,8 @@
 10. Once the **MUnit** Completed the execution, A **Coverage Report** will be generated that can be viewed. **Please watch the Demo vidoe links below for more details.**  
 11. To run **mule-contact-service**, locate and open the mule xml configuration file **interfaces/ms3-contact-service.xml** then right click and select **Run project mule-contact-service**. This will run the project.
 12. If you see the logs on the console saying **DEPLOYED** then we are successfully Up and Run the Project.
-13. To open the api console. Click this link [localhost api console](http://localhost:8081/console/). You should see available **Restful API Resources**. You can use this to test api functionalities. 	
+13. To open the api console. Click this link [localhost api console](http://localhost:8081/console/). You should see available **Restful API Resources**. You can use this to test api functionalities.   
+
+## Demo Vidoes Link
+> Download the videos. [Google Drive Shared Files Link](https://drive.google.com/drive/folders/10EmT44_IwbWboLGYDR4gvdJLmrPIvDFs?usp=sharing). You can open it using **Browser**
+
