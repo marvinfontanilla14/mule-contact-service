@@ -14,18 +14,24 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
 
 <cors:config name="Cors_Configuration" doc:name="Cors Configuration">
-	<cors:origins>
-		<cors:origin url="*" accessControlMaxAge="30">
-			<cors:methods>
-				<cors:method>GET</cors:method>
-				<cors:method>POST</cors:method>
-				<cors:method>OPTIONS</cors:method>
-			</cors:methods>
-			<cors:headers>
-				<cors:header>X-Allow-Origin</cors:header>
-			</cors:headers>
-		</cors:origin>
-	</cors:origins>
+        <cors:origins>
+            <cors:origin url="*" accessControlMaxAge="30">
+                <cors:methods>
+                    <cors:method>GET</cors:method>
+                    <cors:method>DELETE</cors:method>
+                    <cors:method>PUT</cors:method>
+                    <cors:method>PATCH</cors:method>
+                    <cors:method>POST</cors:method>
+                    <cors:method>OPTIONS</cors:method>
+                </cors:methods>
+                <cors:headers>
+                    <cors:header>X-Allow-Origin</cors:header>
+                    <cors:header>Accept</cors:header>
+                    <cors:header>Content-Type</cors:header>
+                </cors:headers>
+            </cors:origin>
+        </cors:origins>
+
 </cors:config>
 
 

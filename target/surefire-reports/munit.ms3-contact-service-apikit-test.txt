@@ -24,5 +24,5 @@ SUCCESS - Test delete:/contact/identification/id_no_record_found:ms3-contact-ser
 SUCCESS - Test post:/contact/communication_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest finished Successfully.
 
 ===============================================================================
-Tests run: 24 - Failures: 0 - Errors: 0 - Skipped: 0 - Time elapsed: 14.625 sec
+Tests run: 24 - Failures: 0 - Errors: 0 - Skipped: 0 - Time elapsed: 14.820 sec
 ===============================================================================
