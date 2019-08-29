@@ -1,4 +1,4 @@
-<testsuite name="ms3-contact-service-apikit-test" time="14.82" failures="0" errors="0" skipped="0" tests="24">
+<testsuite name="ms3-contact-service-apikit-test" time="14.67" failures="0" errors="0" skipped="0" tests="24">
   <properties>
     <property key="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property key="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_181\jre\bin"/>
@@ -63,28 +63,28 @@
     <property key="mule.testingMode" value="true"/>
     <property key="mule.working.dir" value="C:\Users\Marvin Fontanilla\AnypointStudio\workspace-training\ms3-contact-service\target\.mule"/>
   </properties>
-  <testcase time="0.205" name="get:/contact/identification_by_id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.124" name="delete:/contact/address/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.317" name="get:/contact/address:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.262" name="post:/contact/communication:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.202" name="get:/contact/identification_by_id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.117" name="delete:/contact/address/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.312" name="get:/contact/address:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.241" name="post:/contact/communication:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
   <testcase time="0.195" name="delete:/contact/identification/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.132" name="delete:/contact/communication/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="2.849" name="get:/contact/identification:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.248" name="get:/contact/address_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.223" name="post:/contact/identification_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.223" name="post:/contact/address_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.357" name="post:/contact/address:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.142" name="post:/contact/address_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.221" name="patch:/contact/communication/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.171" name="delete:/contact/communication/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.169" name="post:/contact/communication_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.184" name="delete:/contact/address/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.15" name="post:/contact/identification_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.27" name="patch:/contact/address/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.304" name="get:/contact/communication:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.554" name="post:/contact/identification:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.287" name="patch:/contact/identification/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.219" name="get:/contact/communication_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.134" name="delete:/contact/identification/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
-  <testcase time="0.13" name="post:/contact/communication_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.12" name="delete:/contact/communication/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="2.91" name="get:/contact/identification:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.213" name="get:/contact/address_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.329" name="post:/contact/identification_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.21" name="post:/contact/address_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.369" name="post:/contact/address:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.153" name="post:/contact/address_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.234" name="patch:/contact/communication/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.166" name="delete:/contact/communication/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.172" name="post:/contact/communication_existing_record_found:application/json:ms3-contact-service-config-406-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.194" name="delete:/contact/address/id:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.139" name="post:/contact/identification_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.248" name="patch:/contact/address/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.296" name="get:/contact/communication:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.503" name="post:/contact/identification:application/json:ms3-contact-service-config-201-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.248" name="patch:/contact/identification/id:application/json:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.208" name="get:/contact/communication_by_id_contactId:ms3-contact-service-config-200-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.126" name="delete:/contact/identification/id_no_record_found:ms3-contact-service-config-404-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
+  <testcase time="0.138" name="post:/contact/communication_missing_required_field:application/json:ms3-contact-service-config-412-application/json-FlowTest" classname="ms3-contact-service-apikit-test"/>
 </testsuite>
